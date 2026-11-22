@@ -9,6 +9,8 @@ from ..conftest import TestEnv, try_import
 with try_import() as imports_successful:
     import openai
 
+    from pydantic_ai.models import infer_model
+    from pydantic_ai.models.openai import OpenAIChatModel
     from pydantic_ai.providers.crowllm import CrowLLMProvider
 
 pytestmark = pytest.mark.skipif(not imports_successful(), reason='openai not installed')
@@ -38,3 +40,10 @@ def test_crowllm_pass_openai_client() -> None:
     openai_client = openai.AsyncOpenAI(api_key='api-key')
     provider = CrowLLMProvider(openai_client=openai_client)
     assert provider.client == openai_client
+
+
+def test_crowllm_infer_model() -> None:
+    model = infer_model('crowllm:glm-5.3')
+    assert isinstance(model, OpenAIChatModel)
+    assert model.provider.name == 'crowllm'
+    assert model.model_name == 'glm-5.3'
